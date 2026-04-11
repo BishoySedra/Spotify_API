@@ -1,98 +1,220 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Spotify API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS REST API that integrates with the Spotify Web API using OAuth 2.0 Authorization Code Flow. Authenticate with your Spotify account and explore your playlists and tracks through a clean, structured JSON interface — with interactive Swagger documentation included.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **OAuth 2.0** — Full Authorization Code Flow: login, callback, and token refresh
+- **Playlist access** — Fetch only the playlists you own or collaborate on
+- **Track listing** — Get clean, descriptive track data for any playlist
+- **Full library dump** — Retrieve all your playlists with their tracks in a single request
+- **Swagger UI** — Interactive API docs available at `/api`
+- **CORS enabled** — Ready to connect from browser clients
 
-## Project setup
+---
 
-```bash
-$ npm install
-```
+## Tech Stack
 
-## Compile and run the project
+| Layer       | Technology                                                      |
+| ----------- | --------------------------------------------------------------- |
+| Framework   | [NestJS](https://nestjs.com/) v11                               |
+| Language    | TypeScript                                                      |
+| HTTP Client | [axios](https://axios-http.com/)                                |
+| Auth        | Spotify OAuth 2.0                                               |
+| Docs        | [@nestjs/swagger](https://docs.nestjs.com/openapi/introduction) |
+| Config      | [dotenv](https://github.com/motdotla/dotenv)                    |
 
-```bash
-# development
-$ npm run start
+---
 
-# watch mode
-$ npm run start:dev
+## Prerequisites
 
-# production mode
-$ npm run start:prod
-```
+- Node.js >= 18
+- A [Spotify Developer](https://developer.spotify.com/dashboard) app with:
+  - `Client ID` and `Client Secret`
+  - Redirect URI set to `http://127.0.0.1:3000/auth/callback`
 
-## Run tests
+---
+
+## Setup
+
+### 1. Install dependencies
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
+### 2. Configure environment variables
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Create a `.env` file in the project root:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```env
+SPOTIFY_CLIENT_ID=your_client_id_here
+SPOTIFY_CLIENT_SECRET=your_client_secret_here
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:3000/auth/callback
+```
+
+### 3. Run the server
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Development (watch mode)
+npm run start:dev
+
+# Production
+npm run start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The server starts at `http://127.0.0.1:3000`.
+Swagger docs are available at `http://127.0.0.1:3000/docs`.
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## Authentication Flow
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+This API uses the [Spotify Authorization Code Flow](https://developer.spotify.com/documentation/web-api/tutorials/code-flow).
 
-## Support
+```
+1. GET /auth/login                  → Redirects you to the Spotify login page
+2. GET /auth/callback?code=         → Exchanges the code for access_token + refresh_token
+3. GET /auth/refresh?refresh_token= → Gets a new access_token when it expires
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+After step 2, copy the returned `access_token` and use it as a Bearer token in the `Authorization` header for all `/spotify/*` endpoints.
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## API Endpoints
 
-## License
+### Auth
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Method | Endpoint                       | Description                     |
+| ------ | ------------------------------ | ------------------------------- |
+| `GET`  | `/auth/login`                  | Redirect to Spotify login       |
+| `GET`  | `/auth/callback?code=`         | Exchange code for tokens        |
+| `GET`  | `/auth/refresh?refresh_token=` | Refresh an expired access token |
+
+### Spotify
+
+All endpoints require: `Authorization: Bearer <access_token>`
+
+| Method | Endpoint                       | Description                                   |
+| ------ | ------------------------------ | --------------------------------------------- |
+| `GET`  | `/spotify/playlists`           | List your owned & collaborative playlists     |
+| `GET`  | `/spotify/playlists/:id/items` | Get tracks for a specific playlist            |
+| `GET`  | `/spotify/library`             | Get all playlists with their full track lists |
+
+---
+
+## Response Shapes
+
+### `GET /spotify/playlists`
+
+```json
+{
+  "message": "Fetched 5 owned/collaborative playlists",
+  "data": {
+    "total": 5,
+    "playlists": [
+      {
+        "id": "3bjhwY6Z41FElrUEVyd5Hd",
+        "name": "Work Out",
+        "description": "",
+        "public": true,
+        "collaborative": false,
+        "tracksCount": 385,
+        "imageUrl": "https://...",
+        "spotifyUrl": "https://open.spotify.com/playlist/..."
+      }
+    ]
+  }
+}
+```
+
+### `GET /spotify/playlists/:id/items`
+
+```json
+{
+  "message": "Fetched 385 tracks from playlist 3bjhwY6Z41FElrUEVyd5Hd",
+  "data": {
+    "playlistId": "3bjhwY6Z41FElrUEVyd5Hd",
+    "total": 385,
+    "tracks": [
+      {
+        "id": "4uLU6hMCjMI75M1A2tKUQC",
+        "title": "Never Gonna Give You Up",
+        "artists": ["Rick Astley"],
+        "album": "Whenever You Need Somebody",
+        "albumImageUrl": "https://...",
+        "durationMs": 213573,
+        "explicit": false,
+        "spotifyUrl": "https://open.spotify.com/track/...",
+        "addedAt": "2024-07-03T02:13:21Z"
+      }
+    ]
+  }
+}
+```
+
+### `GET /spotify/library`
+
+```json
+{
+  "message": "Fetched full library: 5 playlists",
+  "data": {
+    "total": 5,
+    "playlists": [
+      {
+        "id": "3bjhwY6Z41FElrUEVyd5Hd",
+        "name": "Work Out",
+        "tracksCount": 385,
+        "tracks": ["..."]
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Project Structure
+
+```
+src/
+├── auth/
+│   ├── auth.controller.ts    # OAuth routes: /auth/login, /callback, /refresh
+│   ├── auth.service.ts       # Spotify OAuth logic & token exchange
+│   └── auth.module.ts
+├── spotify/
+│   ├── spotify.controller.ts # Spotify data routes
+│   ├── spotify.service.ts    # Playlist & track fetching logic
+│   └── spotify.module.ts
+├── common/
+│   ├── guards/
+│   │   └── spotify-auth/     # Extracts Bearer token from Authorization header
+│   └── filters/
+│       └── http-exception/   # Global HTTP exception filter
+├── app.module.ts
+└── main.ts                   # Bootstrap: dotenv, CORS, Swagger
+```
+
+---
+
+## Scopes Requested
+
+| Scope                         | Purpose                        |
+| ----------------------------- | ------------------------------ |
+| `playlist-read-private`       | Access private playlists       |
+| `playlist-read-collaborative` | Access collaborative playlists |
+| `user-library-read`           | Access saved library           |
+| `user-read-private`           | Read user profile              |
+
+---
+
+## Error Handling
+
+| Status | Meaning                                                  |
+| ------ | -------------------------------------------------------- |
+| `401`  | Invalid or expired Spotify token                         |
+| `403`  | Access denied — playlist is private and not owned by you |
+| `429`  | Spotify rate limit exceeded                              |
