@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import type { SpotifyRequest } from '../types/spotify.types';
+import type { SpotifyRequest } from '../types/spotify-request.type';
 
 export const SpotifyToken = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): string => {

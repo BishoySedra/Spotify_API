@@ -1,53 +1,38 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
-import {
-  SpotifyUser,
-  SpotifyPaginatedResponse,
-  SpotifyPlaylist,
-  SpotifyPlaylistItem,
-  SpotifySnapshotResponse,
-  MappedTrack,
-  AxiosErrorResponse,
-} from '../common/types/spotify.types';
+import type { SpotifyUser } from '../common/types/spotify-user.type';
+import type { SpotifyPaginatedResponse } from '../common/types/spotify-paginated-response.type';
+import type { SpotifyPlaylist } from '../common/types/spotify-playlist.type';
+import type { SpotifyPlaylistItem } from '../common/types/spotify-playlist-item.type';
+import type { SpotifySnapshotResponse } from '../common/types/spotify-snapshot-response.type';
+import type { MappedTrack } from '../common/types/mapped-track.type';
+import { SPOTIFY_API_BASE, SPOTIFY_BATCH_SIZE } from '../common/constants';
+import { ERROR_MESSAGES } from '../common/constants';
+import { withSpotifyErrorHandling } from '../common/helpers';
+import { authHeaders, authHeadersWithContentType } from '../common/helpers';
+import { parseDate, filterTracksByDate } from '../common/helpers';
 
 @Injectable()
 export class SpotifyService {
   private async getCurrentUserId(token: string): Promise<string> {
-    const res = await axios.get<SpotifyUser>('https://api.spotify.com/v1/me', {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await axios.get<SpotifyUser>(`${SPOTIFY_API_BASE}/me`, {
+      headers: authHeaders(token),
     });
     return res.data.id;
   }
 
-  async getPlaylists(token: string) {
-    try {
-      const [playlistsRes, userId] = await Promise.all([
-        axios.get<SpotifyPaginatedResponse<SpotifyPlaylist>>(
-          'https://api.spotify.com/v1/me/playlists?limit=50',
-          { headers: { Authorization: `Bearer ${token}` } },
-        ),
-        this.getCurrentUserId(token),
-      ]);
+  private async fetchUserPlaylists(token: string) {
+    const [playlistsRes, userId] = await Promise.all([
+      axios.get<SpotifyPaginatedResponse<SpotifyPlaylist>>(
+        `${SPOTIFY_API_BASE}/me/playlists?limit=50`,
+        { headers: authHeaders(token) },
+      ),
+      this.getCurrentUserId(token),
+    ]);
 
-      const filtered = playlistsRes.data.items.filter(
-        (p) => p.owner?.id === userId || p.collaborative === true,
-      );
-
-      const playlists = filtered.map((p) => ({
-        id: p.id,
-        name: p.name,
-        description: p.description || null,
-        public: p.public,
-        collaborative: p.collaborative,
-        tracksCount: p.items?.total ?? p.tracks?.total ?? 0,
-        imageUrl: p.images?.[0]?.url ?? null,
-        spotifyUrl: p.external_urls?.spotify ?? null,
-      }));
-
-      return { total: playlists.length, playlists };
-    } catch (err) {
-      this.handleError(err as AxiosErrorResponse);
-    }
+    return playlistsRes.data.items.filter(
+      (p) => p.owner?.id === userId || p.collaborative === true,
+    );
   }
 
   private async fetchTracksForPlaylist(
@@ -56,19 +41,17 @@ export class SpotifyService {
   ): Promise<MappedTrack[]> {
     const allItems: SpotifyPlaylistItem[] = [];
     let url: string | null =
-      `https://api.spotify.com/v1/playlists/${playlistId}/items?limit=100`;
+      `${SPOTIFY_API_BASE}/playlists/${playlistId}/items?limit=${SPOTIFY_BATCH_SIZE}`;
 
     while (url) {
       const res: AxiosResponse<SpotifyPaginatedResponse<SpotifyPlaylistItem>> =
-        await axios.get(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.get(url, { headers: authHeaders(token) });
       allItems.push(...res.data.items);
       url = res.data.next;
     }
 
     return allItems
-      .filter((i) => (i.track ?? i.item) !== null)
+      .filter((i) => (i.track ?? i.item) != null)
       .map((i) => {
         const t = (i.track ?? i.item)!;
         return {
@@ -86,28 +69,46 @@ export class SpotifyService {
       });
   }
 
+  private async getTracksByDate(
+    token: string,
+    playlistId: string,
+    addedAt: string,
+  ) {
+    const dateStr = parseDate(addedAt);
+    const allTracks = await this.fetchTracksForPlaylist(token, playlistId);
+    const matching = filterTracksByDate(allTracks, dateStr);
+    return { dateStr, matching };
+  }
+
+  async getPlaylists(token: string) {
+    return withSpotifyErrorHandling(async () => {
+      const filtered = await this.fetchUserPlaylists(token);
+
+      const playlists = filtered.map((p) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description || null,
+        public: p.public,
+        collaborative: p.collaborative,
+        tracksCount: p.items?.total ?? p.tracks?.total ?? 0,
+        imageUrl: p.images?.[0]?.url ?? null,
+        spotifyUrl: p.external_urls?.spotify ?? null,
+      }));
+
+      return { total: playlists.length, playlists };
+    });
+  }
+
   async getTracks(token: string, playlistId: string) {
-    try {
+    return withSpotifyErrorHandling(async () => {
       const tracks = await this.fetchTracksForPlaylist(token, playlistId);
       return { playlistId, total: tracks.length, tracks };
-    } catch (err) {
-      this.handleError(err as AxiosErrorResponse);
-    }
+    });
   }
 
   async getFullLibrary(token: string) {
-    try {
-      const [playlistsRes, userId] = await Promise.all([
-        axios.get<SpotifyPaginatedResponse<SpotifyPlaylist>>(
-          'https://api.spotify.com/v1/me/playlists?limit=50',
-          { headers: { Authorization: `Bearer ${token}` } },
-        ),
-        this.getCurrentUserId(token),
-      ]);
-
-      const filtered = playlistsRes.data.items.filter(
-        (p) => p.owner?.id === userId || p.collaborative === true,
-      );
+    return withSpotifyErrorHandling(async () => {
+      const filtered = await this.fetchUserPlaylists(token);
 
       const results = await Promise.all(
         filtered.map(async (p) => {
@@ -129,9 +130,7 @@ export class SpotifyService {
       );
 
       return { total: results.length, playlists: results };
-    } catch (err) {
-      this.handleError(err as AxiosErrorResponse);
-    }
+    });
   }
 
   async removeTracksFromPlaylist(
@@ -140,25 +139,19 @@ export class SpotifyService {
     trackUris: string[],
     snapshotId?: string,
   ) {
-    try {
+    return withSpotifyErrorHandling(async () => {
       const removed: string[] = [];
 
-      for (let i = 0; i < trackUris.length; i += 100) {
-        const batch = trackUris.slice(i, i + 100);
+      for (let i = 0; i < trackUris.length; i += SPOTIFY_BATCH_SIZE) {
+        const batch = trackUris.slice(i, i + SPOTIFY_BATCH_SIZE);
         const body: { items: { uri: string }[]; snapshot_id?: string } = {
           items: batch.map((uri) => ({ uri })),
         };
         if (snapshotId) body.snapshot_id = snapshotId;
 
         const res = await axios.delete<SpotifySnapshotResponse>(
-          `https://api.spotify.com/v1/playlists/${playlistId}/items`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            data: body,
-          },
+          `${SPOTIFY_API_BASE}/playlists/${playlistId}/items`,
+          { headers: authHeadersWithContentType(token), data: body },
         );
 
         snapshotId = res.data.snapshot_id;
@@ -166,39 +159,27 @@ export class SpotifyService {
       }
 
       return { playlistId, removedCount: removed.length, snapshotId };
-    } catch (err) {
-      this.handleError(err as AxiosErrorResponse);
-    }
+    });
   }
 
   async removeTracksByDate(token: string, playlistId: string, addedAt: string) {
-    try {
-      const targetDate = new Date(addedAt);
-      if (isNaN(targetDate.getTime())) {
-        throw new HttpException(
-          'Invalid date format. Use ISO 8601 (e.g. 2025-01-15 or 2025-01-15T00:00:00Z)',
-          400,
-        );
-      }
-      const targetDateStr = targetDate.toISOString().split('T')[0];
+    return withSpotifyErrorHandling(async () => {
+      const { dateStr, matching } = await this.getTracksByDate(
+        token,
+        playlistId,
+        addedAt,
+      );
 
-      const allTracks = await this.fetchTracksForPlaylist(token, playlistId);
-
-      const matchingTracks = allTracks.filter((t) => {
-        const trackDate = new Date(t.addedAt).toISOString().split('T')[0];
-        return trackDate === targetDateStr;
-      });
-
-      if (matchingTracks.length === 0) {
+      if (matching.length === 0) {
         return {
           playlistId,
-          date: targetDateStr,
+          date: dateStr,
           removedCount: 0,
-          message: 'No tracks found added on this date',
+          message: ERROR_MESSAGES.NO_TRACKS_ON_DATE,
         };
       }
 
-      const uris = matchingTracks.map((t) => t.uri);
+      const uris = matching.map((t) => t.uri);
       const result = await this.removeTracksFromPlaylist(
         token,
         playlistId,
@@ -207,20 +188,17 @@ export class SpotifyService {
 
       return {
         playlistId,
-        date: targetDateStr,
-        removedCount: result?.removedCount ?? 0,
-        snapshotId: result?.snapshotId,
-        removedTracks: matchingTracks.map((t) => ({
+        date: dateStr,
+        removedCount: result.removedCount,
+        snapshotId: result.snapshotId,
+        removedTracks: matching.map((t) => ({
           uri: t.uri,
           title: t.title,
           artists: t.artists,
           addedAt: t.addedAt,
         })),
       };
-    } catch (err) {
-      if (err instanceof HttpException) throw err;
-      this.handleError(err as AxiosErrorResponse);
-    }
+    });
   }
 
   async addTracksToPlaylist(
@@ -228,28 +206,21 @@ export class SpotifyService {
     playlistId: string,
     trackUris: string[],
   ) {
-    try {
+    return withSpotifyErrorHandling(async () => {
       let snapshotId: string | undefined;
 
-      for (let i = 0; i < trackUris.length; i += 100) {
-        const batch = trackUris.slice(i, i + 100);
+      for (let i = 0; i < trackUris.length; i += SPOTIFY_BATCH_SIZE) {
+        const batch = trackUris.slice(i, i + SPOTIFY_BATCH_SIZE);
         const res = await axios.post<SpotifySnapshotResponse>(
-          `https://api.spotify.com/v1/playlists/${playlistId}/items`,
+          `${SPOTIFY_API_BASE}/playlists/${playlistId}/items`,
           { uris: batch },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          },
+          { headers: authHeadersWithContentType(token) },
         );
         snapshotId = res.data.snapshot_id;
       }
 
       return { playlistId, addedCount: trackUris.length, snapshotId };
-    } catch (err) {
-      this.handleError(err as AxiosErrorResponse);
-    }
+    });
   }
 
   async copyTracksByDate(
@@ -258,37 +229,24 @@ export class SpotifyService {
     targetPlaylistId: string,
     addedAt: string,
   ) {
-    try {
-      const targetDate = new Date(addedAt);
-      if (isNaN(targetDate.getTime())) {
-        throw new HttpException(
-          'Invalid date format. Use ISO 8601 (e.g. 2025-01-15 or 2025-01-15T00:00:00Z)',
-          400,
-        );
-      }
-      const targetDateStr = targetDate.toISOString().split('T')[0];
-
-      const allTracks = await this.fetchTracksForPlaylist(
+    return withSpotifyErrorHandling(async () => {
+      const { dateStr, matching } = await this.getTracksByDate(
         token,
         sourcePlaylistId,
+        addedAt,
       );
 
-      const matchingTracks = allTracks.filter((t) => {
-        const trackDate = new Date(t.addedAt).toISOString().split('T')[0];
-        return trackDate === targetDateStr;
-      });
-
-      if (matchingTracks.length === 0) {
+      if (matching.length === 0) {
         return {
           sourcePlaylistId,
           targetPlaylistId,
-          date: targetDateStr,
+          date: dateStr,
           addedCount: 0,
-          message: 'No tracks found added on this date',
+          message: ERROR_MESSAGES.NO_TRACKS_ON_DATE,
         };
       }
 
-      const uris = matchingTracks.map((t) => t.uri);
+      const uris = matching.map((t) => t.uri);
       const result = await this.addTracksToPlaylist(
         token,
         targetPlaylistId,
@@ -298,41 +256,16 @@ export class SpotifyService {
       return {
         sourcePlaylistId,
         targetPlaylistId,
-        date: targetDateStr,
-        addedCount: result?.addedCount ?? 0,
-        snapshotId: result?.snapshotId,
-        tracks: matchingTracks.map((t) => ({
+        date: dateStr,
+        addedCount: result.addedCount,
+        snapshotId: result.snapshotId,
+        tracks: matching.map((t) => ({
           uri: t.uri,
           title: t.title,
           artists: t.artists,
           addedAt: t.addedAt,
         })),
       };
-    } catch (err) {
-      if (err instanceof HttpException) throw err;
-      this.handleError(err as AxiosErrorResponse);
-    }
-  }
-
-  private handleError(err: AxiosErrorResponse): never {
-    if (err.response?.status === 401) {
-      throw new HttpException('Invalid Spotify token', 401);
-    }
-
-    if (err.response?.status === 403) {
-      throw new HttpException(
-        'Access denied — this playlist is private and not owned by you',
-        403,
-      );
-    }
-
-    if (err.response?.status === 429) {
-      throw new HttpException('Rate limit exceeded', 429);
-    }
-
-    throw new HttpException(
-      err.response?.data?.error?.message ?? err.message ?? 'Spotify API error',
-      err.response?.status ?? 500,
-    );
+    });
   }
 }

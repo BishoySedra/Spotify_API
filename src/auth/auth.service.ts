@@ -1,10 +1,14 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import axios from 'axios';
+import type { SpotifyTokenResponse } from '../common/types/spotify-token-response.type';
+import type { SpotifyRefreshTokenResponse } from '../common/types/spotify-refresh-token-response.type';
+import type { AxiosErrorResponse } from '../common/types/axios-error-response.type';
 import {
-  SpotifyTokenResponse,
-  SpotifyRefreshTokenResponse,
-  AxiosErrorResponse,
-} from '../common/types/spotify.types';
+  SPOTIFY_TOKEN_URL,
+  SPOTIFY_AUTHORIZE_URL,
+  SPOTIFY_SCOPES,
+} from '../common/constants';
+import { ERROR_MESSAGES } from '../common/constants';
 
 @Injectable()
 export class AuthService {
@@ -20,25 +24,28 @@ export class AuthService {
     return process.env.SPOTIFY_REDIRECT_URI!;
   }
 
-  getAuthorizationUrl(): string {
-    const scopes = [
-      'playlist-read-private',
-      'playlist-read-collaborative',
-      'playlist-modify-public',
-      'playlist-modify-private',
-      'user-library-read',
-      'user-read-private',
-      'user-read-email',
-    ].join(' ');
+  private get credentials(): string {
+    return Buffer.from(`${this.clientId}:${this.clientSecret}`).toString(
+      'base64',
+    );
+  }
 
+  private tokenHeaders() {
+    return {
+      Authorization: `Basic ${this.credentials}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+  }
+
+  getAuthorizationUrl(): string {
     const params = new URLSearchParams({
       client_id: this.clientId,
       response_type: 'code',
       redirect_uri: this.redirectUri,
-      scope: scopes,
+      scope: SPOTIFY_SCOPES.join(' '),
     });
 
-    return `https://accounts.spotify.com/authorize?${params.toString()}`;
+    return `${SPOTIFY_AUTHORIZE_URL}?${params.toString()}`;
   }
 
   async exchangeCode(code: string): Promise<{
@@ -47,10 +54,6 @@ export class AuthService {
     expires_in: number;
     scope: string;
   }> {
-    const credentials = Buffer.from(
-      `${this.clientId}:${this.clientSecret}`,
-    ).toString('base64');
-
     try {
       const body = new URLSearchParams({
         grant_type: 'authorization_code',
@@ -59,14 +62,9 @@ export class AuthService {
       }).toString();
 
       const res = await axios.post<SpotifyTokenResponse>(
-        'https://accounts.spotify.com/api/token',
+        SPOTIFY_TOKEN_URL,
         body,
-        {
-          headers: {
-            Authorization: `Basic ${credentials}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        },
+        { headers: this.tokenHeaders() },
       );
 
       return {
@@ -78,7 +76,8 @@ export class AuthService {
     } catch (err) {
       const axiosErr = err as AxiosErrorResponse;
       throw new HttpException(
-        axiosErr.response?.data?.error_description ?? 'Failed to exchange code',
+        axiosErr.response?.data?.error_description ??
+          ERROR_MESSAGES.EXCHANGE_CODE_FAILED,
         axiosErr.response?.status ?? 500,
       );
     }
@@ -88,10 +87,6 @@ export class AuthService {
     access_token: string;
     expires_in: number;
   }> {
-    const credentials = Buffer.from(
-      `${this.clientId}:${this.clientSecret}`,
-    ).toString('base64');
-
     try {
       const body = new URLSearchParams({
         grant_type: 'refresh_token',
@@ -99,14 +94,9 @@ export class AuthService {
       }).toString();
 
       const res = await axios.post<SpotifyRefreshTokenResponse>(
-        'https://accounts.spotify.com/api/token',
+        SPOTIFY_TOKEN_URL,
         body,
-        {
-          headers: {
-            Authorization: `Basic ${credentials}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        },
+        { headers: this.tokenHeaders() },
       );
 
       return {
@@ -116,7 +106,8 @@ export class AuthService {
     } catch (err) {
       const axiosErr = err as AxiosErrorResponse;
       throw new HttpException(
-        axiosErr.response?.data?.error_description ?? 'Failed to refresh token',
+        axiosErr.response?.data?.error_description ??
+          ERROR_MESSAGES.REFRESH_TOKEN_FAILED,
         axiosErr.response?.status ?? 500,
       );
     }

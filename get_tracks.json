@@ -1,0 +1,201 @@
+{
+  "message": "Tracks from playlist 4otYaPMPcBPErwxKYCUmZZ",
+  "data": {
+    "href": "https://api.spotify.com/v1/playlists/4otYaPMPcBPErwxKYCUmZZ/items?offset=0&limit=100",
+    "items": [
+      {
+        "added_at": "2024-07-03T02:13:21Z",
+        "added_by": {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/krlbkbk40xsqxkxbw95qscrpa"
+          },
+          "href": "https://api.spotify.com/v1/users/krlbkbk40xsqxkxbw95qscrpa",
+          "id": "krlbkbk40xsqxkxbw95qscrpa",
+          "type": "user",
+          "uri": "spotify:user:krlbkbk40xsqxkxbw95qscrpa"
+        },
+        "is_local": false,
+        "primary_color": null,
+        "item": {
+          "is_playable": true,
+          "explicit": false,
+          "type": "track",
+          "episode": false,
+          "track": true,
+          "album": {
+            "is_playable": true,
+            "type": "album",
+            "album_type": "single",
+            "href": "https://api.spotify.com/v1/albums/62S4nsSQnGzCEZKBXkPKKO",
+            "id": "62S4nsSQnGzCEZKBXkPKKO",
+            "images": [
+              {
+                "height": 640,
+                "url": "https://i.scdn.co/image/ab67616d0000b2734a0390ca60094b285def6255",
+                "width": 640
+              },
+              {
+                "height": 300,
+                "url": "https://i.scdn.co/image/ab67616d00001e024a0390ca60094b285def6255",
+                "width": 300
+              },
+              {
+                "height": 64,
+                "url": "https://i.scdn.co/image/ab67616d000048514a0390ca60094b285def6255",
+                "width": 64
+              }
+            ],
+            "name": "Sunlight",
+            "release_date": "2020-06-05",
+            "release_date_precision": "day",
+            "uri": "spotify:album:62S4nsSQnGzCEZKBXkPKKO",
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/0Xccb17GyXNiv7bCY18WvP"
+                },
+                "href": "https://api.spotify.com/v1/artists/0Xccb17GyXNiv7bCY18WvP",
+                "id": "0Xccb17GyXNiv7bCY18WvP",
+                "name": "Onycs",
+                "type": "artist",
+                "uri": "spotify:artist:0Xccb17GyXNiv7bCY18WvP"
+              }
+            ],
+            "external_urls": {
+              "spotify": "https://open.spotify.com/album/62S4nsSQnGzCEZKBXkPKKO"
+            },
+            "total_tracks": 1
+          },
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0Xccb17GyXNiv7bCY18WvP"
+              },
+              "href": "https://api.spotify.com/v1/artists/0Xccb17GyXNiv7bCY18WvP",
+              "id": "0Xccb17GyXNiv7bCY18WvP",
+              "name": "Onycs",
+              "type": "artist",
+              "uri": "spotify:artist:0Xccb17GyXNiv7bCY18WvP"
+            }
+          ],
+          "disc_number": 1,
+          "track_number": 1,
+          "duration_ms": 255190,
+          "external_ids": {
+            "isrc": "QZJRC1970153"
+          },
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/77vD0ZQOMjOUR2uhp3eFVG"
+          },
+          "href": "https://api.spotify.com/v1/tracks/77vD0ZQOMjOUR2uhp3eFVG",
+          "id": "77vD0ZQOMjOUR2uhp3eFVG",
+          "name": "Sunlight",
+          "uri": "spotify:track:77vD0ZQOMjOUR2uhp3eFVG",
+          "is_local": false
+        },
+        "video_thumbnail": {
+          "url": null
+        }
+      },
+    {
+        "added_at": "2024-07-03T02:13:21Z",
+        "added_by": {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/krlbkbk40xsqxkxbw95qscrpa"
+          },
+          "href": "https://api.spotify.com/v1/users/krlbkbk40xsqxkxbw95qscrpa",
+          "id": "krlbkbk40xsqxkxbw95qscrpa",
+          "type": "user",
+          "uri": "spotify:user:krlbkbk40xsqxkxbw95qscrpa"
+        },
+        "is_local": false,
+        "primary_color": null,
+        "item": {
+          "is_playable": true,
+          "explicit": false,
+          "type": "track",
+          "episode": false,
+          "track": true,
+          "album": {
+            "is_playable": true,
+            "type": "album",
+            "album_type": "album",
+            "href": "https://api.spotify.com/v1/albums/3NMs1HLjZjbVM1my5DPuak",
+            "id": "3NMs1HLjZjbVM1my5DPuak",
+            "images": [
+              {
+                "height": 640,
+                "url": "https://i.scdn.co/image/ab67616d0000b273b48a69912b4600ee151992fe",
+                "width": 640
+              },
+              {
+                "height": 300,
+                "url": "https://i.scdn.co/image/ab67616d00001e02b48a69912b4600ee151992fe",
+                "width": 300
+              },
+              {
+                "height": 64,
+                "url": "https://i.scdn.co/image/ab67616d00004851b48a69912b4600ee151992fe",
+                "width": 64
+              }
+            ],
+            "name": "Bones",
+            "release_date": "2019-07-26",
+            "release_date_precision": "day",
+            "uri": "spotify:album:3NMs1HLjZjbVM1my5DPuak",
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/6ZULITXmOFWJwJKilsFRm7"
+                },
+                "href": "https://api.spotify.com/v1/artists/6ZULITXmOFWJwJKilsFRm7",
+                "id": "6ZULITXmOFWJwJKilsFRm7",
+                "name": "Datach'i",
+                "type": "artist",
+                "uri": "spotify:artist:6ZULITXmOFWJwJKilsFRm7"
+              }
+            ],
+            "external_urls": {
+              "spotify": "https://open.spotify.com/album/3NMs1HLjZjbVM1my5DPuak"
+            },
+            "total_tracks": 12
+          },
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/6ZULITXmOFWJwJKilsFRm7"
+              },
+              "href": "https://api.spotify.com/v1/artists/6ZULITXmOFWJwJKilsFRm7",
+              "id": "6ZULITXmOFWJwJKilsFRm7",
+              "name": "Datach'i",
+              "type": "artist",
+              "uri": "spotify:artist:6ZULITXmOFWJwJKilsFRm7"
+            }
+          ],
+          "disc_number": 1,
+          "track_number": 4,
+          "duration_ms": 276600,
+          "external_ids": {
+            "isrc": "USA2B1901399"
+          },
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/0q7N2mxBIDrv1ol2y1Sa2F"
+          },
+          "href": "https://api.spotify.com/v1/tracks/0q7N2mxBIDrv1ol2y1Sa2F",
+          "id": "0q7N2mxBIDrv1ol2y1Sa2F",
+          "name": "Rockledge 3A",
+          "uri": "spotify:track:0q7N2mxBIDrv1ol2y1Sa2F",
+          "is_local": false
+        },
+        "video_thumbnail": {
+          "url": null
+        }
+      }
+    ],
+    "limit": 2,
+    "next": "https://api.spotify.com/v1/playlists/4otYaPMPcBPErwxKYCUmZZ/items?offset=2&limit=2",
+    "offset": 0,
+    "previous": null,
+    "total": 501
+  }
+}

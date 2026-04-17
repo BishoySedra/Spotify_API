@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SpotifyRequest } from '../../types/spotify.types';
+import type { SpotifyRequest } from '../../types/spotify-request.type';
 
 @Injectable()
 export class SpotifyAuthGuard implements CanActivate {

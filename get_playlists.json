@@ -1,0 +1,89 @@
+{
+  "message": "Fetched undefined playlists",
+  "data": {
+    "href": "https://api.spotify.com/v1/me/playlists?offset=0&limit=50",
+    "limit": 50,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total": 34,
+    "items": [
+      {
+        "collaborative": false,
+        "description": "New playlist description",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/playlist/18dauMkIEDO5k4ZsL68TEO"
+        },
+        "href": "https://api.spotify.com/v1/playlists/18dauMkIEDO5k4ZsL68TEO",
+        "id": "18dauMkIEDO5k4ZsL68TEO",
+        "images": null,
+        "name": "New Playlist",
+        "owner": {
+          "display_name": "Bishoy",
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/krlbkbk40xsqxkxbw95qscrpa"
+          },
+          "href": "https://api.spotify.com/v1/users/krlbkbk40xsqxkxbw95qscrpa",
+          "id": "krlbkbk40xsqxkxbw95qscrpa",
+          "type": "user",
+          "uri": "spotify:user:krlbkbk40xsqxkxbw95qscrpa"
+        },
+        "primary_color": null,
+        "public": true,
+        "snapshot_id": "AAAAAWu/QmuzwP+Q58f7Rui3alTnvTMo",
+        "items": {
+          "href": "https://api.spotify.com/v1/playlists/18dauMkIEDO5k4ZsL68TEO/items",
+          "total": 0
+        },
+        "type": "playlist",
+        "uri": "spotify:playlist:18dauMkIEDO5k4ZsL68TEO"
+      },
+      {
+        "collaborative": false,
+        "description": "",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/playlist/3bjhwY6Z41FElrUEVyd5Hd"
+        },
+        "href": "https://api.spotify.com/v1/playlists/3bjhwY6Z41FElrUEVyd5Hd",
+        "id": "3bjhwY6Z41FElrUEVyd5Hd",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://mosaic.scdn.co/640/ab67616d00001e0248ae5a9f66bb4de527c2c299ab67616d00001e027fab734499a635e86fbdc2c6ab67616d00001e02b72ddbc2e5b8c9ce5f3c4ef7ab67616d00001e02eab40fc794b88b9d1e012578",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://mosaic.scdn.co/300/ab67616d00001e0248ae5a9f66bb4de527c2c299ab67616d00001e027fab734499a635e86fbdc2c6ab67616d00001e02b72ddbc2e5b8c9ce5f3c4ef7ab67616d00001e02eab40fc794b88b9d1e012578",
+            "width": 300
+          },
+          {
+            "height": 60,
+            "url": "https://mosaic.scdn.co/60/ab67616d00001e0248ae5a9f66bb4de527c2c299ab67616d00001e027fab734499a635e86fbdc2c6ab67616d00001e02b72ddbc2e5b8c9ce5f3c4ef7ab67616d00001e02eab40fc794b88b9d1e012578",
+            "width": 60
+          }
+        ],
+        "name": "Work Out",
+        "owner": {
+          "display_name": "Bishoy",
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/krlbkbk40xsqxkxbw95qscrpa"
+          },
+          "href": "https://api.spotify.com/v1/users/krlbkbk40xsqxkxbw95qscrpa",
+          "id": "krlbkbk40xsqxkxbw95qscrpa",
+          "type": "user",
+          "uri": "spotify:user:krlbkbk40xsqxkxbw95qscrpa"
+        },
+        "primary_color": null,
+        "public": true,
+        "snapshot_id": "AAAACMOzC6tZb89c3v6bVdYZeYPCN6VB",
+        "items": {
+          "href": "https://api.spotify.com/v1/playlists/3bjhwY6Z41FElrUEVyd5Hd/items",
+          "total": 385
+        },
+        "type": "playlist",
+        "uri": "spotify:playlist:3bjhwY6Z41FElrUEVyd5Hd"
+      }
+    ]
+  }
+}
