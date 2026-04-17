@@ -1,5 +1,10 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import axios from 'axios';
+import {
+  SpotifyTokenResponse,
+  SpotifyRefreshTokenResponse,
+  AxiosErrorResponse,
+} from '../common/types/spotify.types';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +24,8 @@ export class AuthService {
     const scopes = [
       'playlist-read-private',
       'playlist-read-collaborative',
+      'playlist-modify-public',
+      'playlist-modify-private',
       'user-library-read',
       'user-read-private',
       'user-read-email',
@@ -51,7 +58,7 @@ export class AuthService {
         redirect_uri: this.redirectUri,
       }).toString();
 
-      const res = await axios.post(
+      const res = await axios.post<SpotifyTokenResponse>(
         'https://accounts.spotify.com/api/token',
         body,
         {
@@ -68,10 +75,11 @@ export class AuthService {
         expires_in: res.data.expires_in,
         scope: res.data.scope,
       };
-    } catch (err: any) {
+    } catch (err) {
+      const axiosErr = err as AxiosErrorResponse;
       throw new HttpException(
-        err.response?.data?.error_description ?? 'Failed to exchange code',
-        err.response?.status ?? 500,
+        axiosErr.response?.data?.error_description ?? 'Failed to exchange code',
+        axiosErr.response?.status ?? 500,
       );
     }
   }
@@ -90,7 +98,7 @@ export class AuthService {
         refresh_token: refreshToken,
       }).toString();
 
-      const res = await axios.post(
+      const res = await axios.post<SpotifyRefreshTokenResponse>(
         'https://accounts.spotify.com/api/token',
         body,
         {
@@ -105,10 +113,11 @@ export class AuthService {
         access_token: res.data.access_token,
         expires_in: res.data.expires_in,
       };
-    } catch (err: any) {
+    } catch (err) {
+      const axiosErr = err as AxiosErrorResponse;
       throw new HttpException(
-        err.response?.data?.error_description ?? 'Failed to refresh token',
-        err.response?.status ?? 500,
+        axiosErr.response?.data?.error_description ?? 'Failed to refresh token',
+        axiosErr.response?.status ?? 500,
       );
     }
   }

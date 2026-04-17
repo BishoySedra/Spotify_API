@@ -4,11 +4,12 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { SpotifyRequest } from '../../types/spotify.types';
 
 @Injectable()
 export class SpotifyAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const req = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest<SpotifyRequest>();
     const auth = req.headers.authorization;
 
     if (!auth || !auth.startsWith('Bearer ')) {
