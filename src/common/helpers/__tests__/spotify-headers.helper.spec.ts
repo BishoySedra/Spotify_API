@@ -1,7 +1,7 @@
 import {
   authHeaders,
   authHeadersWithContentType,
-} from './spotify-headers.helper';
+} from '../spotify-headers.helper';
 
 describe('authHeaders', () => {
   it('should return an Authorization header with Bearer token', () => {

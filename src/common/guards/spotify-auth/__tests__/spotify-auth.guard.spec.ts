@@ -1,5 +1,6 @@
 import { UnauthorizedException } from '@nestjs/common';
-import { SpotifyAuthGuard } from './spotify-auth.guard';
+import { SpotifyAuthGuard } from '../spotify-auth.guard';
+import { mockContext } from './helpers/mock-context.helper';
 
 describe('SpotifyAuthGuard', () => {
   let guard: SpotifyAuthGuard;
@@ -7,17 +8,6 @@ describe('SpotifyAuthGuard', () => {
   beforeEach(() => {
     guard = new SpotifyAuthGuard();
   });
-
-  function mockContext(authHeader?: string) {
-    const req: Record<string, unknown> = {
-      headers: { authorization: authHeader },
-    };
-    return {
-      switchToHttp: () => ({
-        getRequest: () => req,
-      }),
-    } as never;
-  }
 
   it('should return true and set spotifyToken for valid Bearer token', () => {
     const ctx = mockContext('Bearer my-access-token');

@@ -1,21 +1,22 @@
 import { Test } from '@nestjs/testing';
-import { SpotifyController } from './spotify.controller';
-import { SpotifyService } from './spotify.service';
+import { SpotifyController } from '../spotify.controller';
+import { SpotifyService } from '../spotify.service';
+import { createMockSpotifyService } from './helpers/mock-spotify-service.helper';
+import {
+  PLAYLISTS_RESPONSE,
+  TRACKS_RESPONSE,
+  REMOVE_TRACKS_RESPONSE,
+  REMOVE_BY_DATE_RESPONSE,
+  COPY_BY_DATE_RESPONSE,
+  LIBRARY_RESPONSE,
+} from './fixtures/spotify-controller.fixtures';
 
 describe('SpotifyController', () => {
   let controller: SpotifyController;
   let service: jest.Mocked<SpotifyService>;
 
   beforeEach(async () => {
-    const mockService = {
-      getPlaylists: jest.fn(),
-      getTracks: jest.fn(),
-      removeTracksFromPlaylist: jest.fn(),
-      removeTracksByDate: jest.fn(),
-      copyTracksByDate: jest.fn(),
-      getFullLibrary: jest.fn(),
-      addTracksToPlaylist: jest.fn(),
-    };
+    const mockService = createMockSpotifyService();
 
     const module = await Test.createTestingModule({
       controllers: [SpotifyController],
@@ -28,31 +29,7 @@ describe('SpotifyController', () => {
 
   describe('getPlaylists', () => {
     it('should return playlists with message', async () => {
-      service.getPlaylists.mockResolvedValue({
-        total: 2,
-        playlists: [
-          {
-            id: 'p1',
-            name: 'Playlist 1',
-            description: null,
-            public: true,
-            collaborative: false,
-            tracksCount: 10,
-            imageUrl: null,
-            spotifyUrl: null,
-          },
-          {
-            id: 'p2',
-            name: 'Playlist 2',
-            description: null,
-            public: false,
-            collaborative: true,
-            tracksCount: 5,
-            imageUrl: null,
-            spotifyUrl: null,
-          },
-        ],
-      });
+      service.getPlaylists.mockResolvedValue(PLAYLISTS_RESPONSE);
 
       const result = await controller.getPlaylists('token');
 
@@ -64,24 +41,7 @@ describe('SpotifyController', () => {
 
   describe('getTracks', () => {
     it('should return tracks with message', async () => {
-      service.getTracks.mockResolvedValue({
-        playlistId: 'p1',
-        total: 1,
-        tracks: [
-          {
-            id: 't1',
-            uri: 'spotify:track:t1',
-            title: 'Track 1',
-            artists: ['Artist'],
-            album: 'Album',
-            albumImageUrl: null,
-            durationMs: 200000,
-            explicit: false,
-            spotifyUrl: null,
-            addedAt: '2025-01-15T00:00:00Z',
-          },
-        ],
-      });
+      service.getTracks.mockResolvedValue(TRACKS_RESPONSE);
 
       const result = await controller.getTracks('token', 'p1');
 
@@ -93,11 +53,9 @@ describe('SpotifyController', () => {
 
   describe('removeItems', () => {
     it('should call removeTracksFromPlaylist and return message', async () => {
-      service.removeTracksFromPlaylist.mockResolvedValue({
-        playlistId: 'p1',
-        removedCount: 2,
-        snapshotId: 'snap-1',
-      });
+      service.removeTracksFromPlaylist.mockResolvedValue(
+        REMOVE_TRACKS_RESPONSE,
+      );
 
       const result = await controller.removeItems('token', 'p1', {
         uris: ['spotify:track:t1', 'spotify:track:t2'],
@@ -115,13 +73,7 @@ describe('SpotifyController', () => {
 
   describe('removeItemsByDate', () => {
     it('should call removeTracksByDate and return message', async () => {
-      service.removeTracksByDate.mockResolvedValue({
-        playlistId: 'p1',
-        date: '2025-01-15',
-        removedCount: 3,
-        snapshotId: 'snap-2',
-        removedTracks: [],
-      });
+      service.removeTracksByDate.mockResolvedValue(REMOVE_BY_DATE_RESPONSE);
 
       const result = await controller.removeItemsByDate(
         'token',
@@ -136,14 +88,7 @@ describe('SpotifyController', () => {
 
   describe('copyItemsByDate', () => {
     it('should call copyTracksByDate and return message', async () => {
-      service.copyTracksByDate.mockResolvedValue({
-        sourcePlaylistId: 'src',
-        targetPlaylistId: 'tgt',
-        date: '2025-01-15',
-        addedCount: 5,
-        snapshotId: 'snap-3',
-        tracks: [],
-      });
+      service.copyTracksByDate.mockResolvedValue(COPY_BY_DATE_RESPONSE);
 
       const result = await controller.copyItemsByDate(
         'token',
@@ -159,10 +104,7 @@ describe('SpotifyController', () => {
 
   describe('getFullLibrary', () => {
     it('should return library with message', async () => {
-      service.getFullLibrary.mockResolvedValue({
-        total: 1,
-        playlists: [],
-      });
+      service.getFullLibrary.mockResolvedValue(LIBRARY_RESPONSE);
 
       const result = await controller.getFullLibrary('token');
 

@@ -46,8 +46,57 @@ jobs:
 
       - run: npm ci
 
-      - name: Run unit tests
+      - name: Run service tests
+        run: npm run test:service -- --ci
+
+      - name: Run controller tests
+        run: npm run test:controller -- --ci
+
+      - name: Run helper tests
+        run: npm run test:helper -- --ci
+
+      - name: Run guard tests
+        run: npm run test:guard -- --ci
+
+      - name: Run filter tests
+        run: npm run test:filter -- --ci
+
+      - name: Run all tests with coverage
         run: npm test -- --ci --coverage
+
+      - name: Coverage summary
+        if: always() && matrix.node-version == 20
+        run: |
+          node -e "
+          const r = require('./coverage/coverage-summary.json');
+          const fmt = (m) => {
+            const pct = m.pct;
+            const icon = pct >= 80 ? '🟢' : pct >= 60 ? '🟡' : '🔴';
+            return icon + ' ' + pct + '%';
+          };
+          const rows = Object.entries(r)
+            .filter(([k]) => k !== 'total')
+            .map(([file, d]) => [
+              file.replace(/^.*src\//, 'src/'),
+              fmt(d.statements),
+              fmt(d.branches),
+              fmt(d.functions),
+              fmt(d.lines),
+            ]);
+          const t = r.total;
+          let md = '## Test Coverage Report\n\n';
+          md += '### Overall\n\n';
+          md += '| Metric | Coverage |\n|---|---|\n';
+          md += '| Statements | ' + fmt(t.statements) + ' (' + t.statements.covered + '/' + t.statements.total + ') |\n';
+          md += '| Branches | ' + fmt(t.branches) + ' (' + t.branches.covered + '/' + t.branches.total + ') |\n';
+          md += '| Functions | ' + fmt(t.functions) + ' (' + t.functions.covered + '/' + t.functions.total + ') |\n';
+          md += '| Lines | ' + fmt(t.lines) + ' (' + t.lines.covered + '/' + t.lines.total + ') |\n\n';
+          md += '### Per File\n\n';
+          md += '| File | Statements | Branches | Functions | Lines |\n';
+          md += '|---|---|---|---|---|\n';
+          rows.forEach(r => md += '| ' + r.join(' | ') + ' |\n');
+          require('fs').appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+          "
 
       - name: Upload coverage report
         if: matrix.node-version == 20

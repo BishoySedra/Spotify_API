@@ -1,0 +1,40 @@
+import type { MappedTrack } from '../../../types';
+
+export const MOCK_TRACKS: MappedTrack[] = [
+  {
+    id: '1',
+    uri: 'spotify:track:1',
+    title: 'Track A',
+    artists: ['Artist A'],
+    album: 'Album A',
+    albumImageUrl: null,
+    durationMs: 200000,
+    explicit: false,
+    spotifyUrl: null,
+    addedAt: '2025-01-15T10:00:00Z',
+  },
+  {
+    id: '2',
+    uri: 'spotify:track:2',
+    title: 'Track B',
+    artists: ['Artist B'],
+    album: 'Album B',
+    albumImageUrl: null,
+    durationMs: 180000,
+    explicit: true,
+    spotifyUrl: null,
+    addedAt: '2025-01-16T08:00:00Z',
+  },
+  {
+    id: '3',
+    uri: 'spotify:track:3',
+    title: 'Track C',
+    artists: ['Artist C'],
+    album: 'Album C',
+    albumImageUrl: null,
+    durationMs: 220000,
+    explicit: false,
+    spotifyUrl: null,
+    addedAt: '2025-01-15T23:59:59Z',
+  },
+];

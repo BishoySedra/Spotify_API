@@ -1,30 +1,18 @@
 import { Test } from '@nestjs/testing';
 import axios from 'axios';
-import { SpotifyService } from './spotify.service';
-import { SPOTIFY_API_BASE } from '../common/constants';
+import { SpotifyService } from '../spotify.service';
+import { registerMockCleanup } from '../../common/__tests__/utils/test-setup.util';
+import {
+  mockPlaylistsApiCalls,
+  PAGINATED_TRACKS_PAGE_1,
+  PAGINATED_TRACKS_PAGE_2,
+  TRACKS_WITH_NULL,
+  DATE_FILTER_TRACKS,
+  COPY_TRACKS,
+} from './fixtures/spotify-service.fixtures';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-function makeTrackItem(id: string, addedAt: string) {
-  return {
-    track: {
-      id,
-      uri: `spotify:track:${id}`,
-      name: `Track ${id}`,
-      artists: [{ name: 'Artist', id: 'a1', external_urls: { spotify: '' } }],
-      album: {
-        name: 'Album',
-        id: 'alb1',
-        images: [{ url: 'https://img.url', height: 300, width: 300 }],
-      },
-      duration_ms: 200000,
-      explicit: false,
-      external_urls: { spotify: `https://open.spotify.com/track/${id}` },
-    },
-    added_at: addedAt,
-  };
-}
 
 describe('SpotifyService', () => {
   let service: SpotifyService;
@@ -37,50 +25,11 @@ describe('SpotifyService', () => {
     service = module.get(SpotifyService);
   });
 
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
+  registerMockCleanup();
 
   describe('getPlaylists', () => {
     it('should return owned and collaborative playlists', async () => {
-      mockedAxios.get.mockImplementation((url: string) => {
-        if (url.includes('/me/playlists')) {
-          return Promise.resolve({
-            data: {
-              items: [
-                {
-                  id: 'p1',
-                  name: 'My Playlist',
-                  description: 'desc',
-                  public: true,
-                  collaborative: false,
-                  owner: { id: 'user1', display_name: 'User' },
-                  tracks: { total: 10 },
-                  images: [{ url: 'https://img', height: 300, width: 300 }],
-                  external_urls: {
-                    spotify: 'https://open.spotify.com/playlist/p1',
-                  },
-                },
-                {
-                  id: 'p2',
-                  name: 'Other Playlist',
-                  description: null,
-                  public: false,
-                  collaborative: false,
-                  owner: { id: 'other-user', display_name: 'Other' },
-                  tracks: { total: 5 },
-                  images: [],
-                  external_urls: { spotify: '' },
-                },
-              ],
-            },
-          });
-        }
-        if (url === `${SPOTIFY_API_BASE}/me`) {
-          return Promise.resolve({ data: { id: 'user1' } });
-        }
-        return Promise.reject(new Error('Unexpected URL'));
-      });
+      mockPlaylistsApiCalls(mockedAxios);
 
       const result = await service.getPlaylists('token');
 
@@ -92,18 +41,9 @@ describe('SpotifyService', () => {
 
   describe('getTracks', () => {
     it('should return all tracks with pagination', async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          items: [makeTrackItem('t1', '2025-01-15T00:00:00Z')],
-          next: 'https://api.spotify.com/v1/playlists/p1/items?offset=100',
-        },
-      });
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          items: [makeTrackItem('t2', '2025-01-16T00:00:00Z')],
-          next: null,
-        },
-      });
+      mockedAxios.get
+        .mockResolvedValueOnce(PAGINATED_TRACKS_PAGE_1)
+        .mockResolvedValueOnce(PAGINATED_TRACKS_PAGE_2);
 
       const result = await service.getTracks('token', 'p1');
 
@@ -114,15 +54,7 @@ describe('SpotifyService', () => {
     });
 
     it('should filter out null tracks', async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          items: [
-            makeTrackItem('t1', '2025-01-15T00:00:00Z'),
-            { track: null, added_at: '2025-01-15T00:00:00Z' },
-          ],
-          next: null,
-        },
-      });
+      mockedAxios.get.mockResolvedValueOnce(TRACKS_WITH_NULL);
 
       const result = await service.getTracks('token', 'p1');
       expect(result.tracks).toHaveLength(1);
@@ -180,16 +112,7 @@ describe('SpotifyService', () => {
 
   describe('removeTracksByDate', () => {
     beforeEach(() => {
-      mockedAxios.get.mockResolvedValue({
-        data: {
-          items: [
-            makeTrackItem('t1', '2025-01-15T10:00:00Z'),
-            makeTrackItem('t2', '2025-01-16T10:00:00Z'),
-            makeTrackItem('t3', '2025-01-15T20:00:00Z'),
-          ],
-          next: null,
-        },
-      });
+      mockedAxios.get.mockResolvedValue(DATE_FILTER_TRACKS);
     });
 
     it('should remove tracks matching the date', async () => {
@@ -221,15 +144,7 @@ describe('SpotifyService', () => {
 
   describe('copyTracksByDate', () => {
     beforeEach(() => {
-      mockedAxios.get.mockResolvedValue({
-        data: {
-          items: [
-            makeTrackItem('t1', '2025-03-10T08:00:00Z'),
-            makeTrackItem('t2', '2025-03-11T08:00:00Z'),
-          ],
-          next: null,
-        },
-      });
+      mockedAxios.get.mockResolvedValue(COPY_TRACKS);
     });
 
     it('should copy matching tracks to target playlist', async () => {
